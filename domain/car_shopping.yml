@@ -1,0 +1,19 @@
+version: "3.1"
+
+actions:
+  - action_car_shopping
+
+slots:
+  dealer_name:
+    type: text
+    mappings:
+      - type: controlled
+  car_model:
+    type: text
+    mappings:
+      - type: controlled
+  car_price:
+    type: float
+    mappings:
+      - type: from_llm
+      - type: controlled
