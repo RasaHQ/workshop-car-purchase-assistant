@@ -1,0 +1,22 @@
+# macOS
+.DS_Store
+**/.DS_Store
+
+# Python
+__pycache__/
+*.py[cod]
+*.egg-info/
+.venv/
+venv/
+dist/
+build/
+.cache/
+.config/
+
+# Rasa
+models/
+.rasa/
+
+# Env
+.env
+sub_agents_docker_compose/.DS_Store
