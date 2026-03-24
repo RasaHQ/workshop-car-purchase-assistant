@@ -5,9 +5,10 @@ Objective: trace orchestration across all phases.
 
 Prompt sequence:
 1. "I need a reliable compact SUV under $35k."
-2. "Find one at a dealer near me."
-3. "Can I afford this with a 72-month loan?"
-4. "Book me an appointment next Tuesday afternoon."
+2. "ideally toyota with awd"
+3. "Find one at a dealer near me."
+4. "Can I afford this with a 72-month loan?"
+5. "Book me an appointment next Tuesday afternoon."
 
 Expected checks:
 1. MCP search is used for research.

@@ -5,6 +5,12 @@
 action_endpoint:
   actions_module: "actions"
 
+
+tracing:
+  - type: langfuse
+    host: https://cloud.langfuse.com
+    public_key: ${LANGFUSE_PUBLIC_KEY}
+    private_key: ${LANGFUSE_PRIVATE_KEY}
 # The lines below activate contextual rephrasing, using the default OpenAI language model.
 # Ensure the OPENAI_API_KEY is set to prevent any missing API key errors.
 # For more details, refer to the documentation:

@@ -175,7 +175,7 @@ class CarShoppingAgent:
     def _build_agent(self) -> LlmAgent:
         """Builds the LLM agent for the car shopping agent."""
         return LlmAgent(
-            model="gemini-2.0-flash-001",
+            model="gemini-2.5-flash",
             name="car_shopping_agent",
             description=(
                 "This agent helps users find specific cars at dealers, check availability, "
