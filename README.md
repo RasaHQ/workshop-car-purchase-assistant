@@ -1,174 +1,100 @@
-# Car Purchase Assistant
+# Customer Success Engineering Workshop (Offsite Spring 2026): MCP, A2A, and Orchestration
 
-This car purchase assistant demonstrates advanced agentic orchestration patterns for
-complex, multi-phase workflows:
+## Learning Outcomes
+By the end of this workshop, participants can:
+1. Explain the roles of orchestration, MCP servers, and A2A agents.
+2. Decide when to use MCP vs A2A for a customer requirement.
+3. Apply a small but meaningful change safely and validate end-to-end behavior.
+4. Diagnose common runtime issues (model missing, port conflict, startup race, stream errors).
 
-**Primary Use Case**: Shows how to orchestrate specialized agents (research, shopping, appointment booking)
-through a single conversational interface, demonstrating end-to-end workflow management.
+## Repo Architecture
+- Main orchestrator: `agentic_assistant` / `rasa_server`
+- Docker wiring: `docker-compose.yml`
+- Endpoints and tracker config: `endpoints-docker-compose.yml`
+- MCP server (web search): `servers/tavily_search_server/`
+- MCP server (appointment booking): `servers/appointment_booking_server/`
+- A2A server (shopping): `servers/car_shopping_server/`
+- Shopping A2A execution path:
+  - Server: `servers/car_shopping_server/car_shopping_server.py`
+  - Executor: `servers/car_shopping_server/agent_executor.py`
+  - Agent/tools: `servers/car_shopping_server/agent.py`
+  - Mock inventory: `servers/car_shopping_server/cars.json`
 
-**Context-Aware Orchestration**: Demonstrates how to maintain context across different
-phases, with structured data flow between research results, shopping decisions, financing options, and appointment scheduling.
+## Setup Instructions (for participants)
+1. Get the .env from 1Password shared file and use it in the repo.
 
-**Comprehensive Workflow**: The assistant handles the complete car purchase journey from initial research to final appointment booking, including financial assessment and loan calculations.
-
-## Architecture Overview
-
-The car purchase assistant uses multiple specialized servers and agents to provide a comprehensive car buying experience:
-
-### MCP Servers
-
-**Web Search Server**: Provides car research capabilities by: 
-- Either, connecting to external search APIs (API key required), allowing the assistant to retrieve up-to-date information for real-time car research and decision-making.
-- Or, using a static mock dataset.
-
-**Appointment Booking Server**: Handles appointment scheduling with dealers, providing flexible scheduling options and availability management.
-
-For setup and technical details, see:
-- [Web Search MCP Server README](servers/tavily_search_server/README.md)
-- [Appointment Booking MCP Server README](servers/appointment_booking_server/README.md)
-
-### A2A Server
-
-**Car Shopping Server**: Powers the car shopping and purchase workflow. This server provides structured car search and recommendation capabilities, enabling the assistant to help users find vehicles, check availability at dealers, and facilitate car reservations.
-
-For more details on its features and configuration, see the [Car Shopping A2A Server README](servers/car_shopping_server/README.md).
-
-### Sub-Agents
-
-The assistant includes several specialized sub-agents:
-
-- **Research Agent**: Handles web-based car research using the Tavily search API using the *Web Search Server*.
-- **Shopping Agent**: Manages car shopping workflows through the A2A car shopping server using the *Car Shopping Server*.
-- **Appointment Selector**: Facilitates appointment booking with dealers using the *Appointment Booking Server*.
-
-## Workflow Capabilities
-
-The car purchase assistant provides a comprehensive end-to-end car buying experience with the following capabilities:
-
-### 1. Car Research
-- **Web-based research**: Uses the Tavily search API to find current information about car models, reviews, and specifications
-- **Intelligent recommendations**: Provides personalized car suggestions based on user preferences
-- **Real-time data**: Accesses up-to-date pricing, features, and availability information
-
-### 2. Car Shopping
-- **Dealer availability**: Checks if specific cars are available at specific dealers
-- **Similar car recommendations**: Suggests alternatives when the exact model isn't available
-- **Dealer recommendations**: Finds dealers that stock the desired car models
-- **Car reservations**: Facilitates the reservation of cars at dealers (not purchases)
-
-### 3. Financial Assessment
-- **Credit score checking**: Validates user identity and retrieves credit scores
-- **Loan affordability**: Calculates debt-to-income ratios and determines loan affordability
-- **Existing loan analysis**: Reviews current loan obligations
-- **Account balance checking**: Verifies available funds
-- **Loan calculations**: Provides detailed financing options with different terms and down payments
-
-### 4. Appointment Scheduling
-- **Flexible scheduling**: Books appointments with dealers based on user preferences
-- **Availability management**: Handles date and time constraints with intelligent defaults
-- **Confirmation workflow**: Provides confirmation and cancellation options
-
-## E2E Testing with Mock Web-Search MCP Server
-
-The car purchase assistant includes E2E testing capabilities using mock Web-Search MCP server.
-
-### Why we mock Web Search MCP Server
-
-- **Reduce External Dependencies**: No need for Tavily API key during testing.
-- **More consistent Results**: Mock data ensures more reproducible test outcomes across different environments
-- **Cost Effective**: Reduces API usage costs during development and testing cycles
-- **Faster Execution**: Mock responses are instant, significantly speeding up test runs
-
-### What We're Testing
-
-Our tests focus on the **assistant's orchestration capabilities** rather than external API functionality:
-
-- **Flow Management**: How the assistant guides users through complex multi-step workflows
-- **Conversation Patterns**: Context maintenance and natural conversation handling
-- **Agent Coordination**: How different specialized agents work together seamlessly
-- **Error Handling**: Graceful handling of user cancellations and digressions
-- **State Management**: Proper tracking of user preferences and conversation state
-
-**Important**: We are **not** testing the external search APIs themselves - we're testing how the assistant uses search results to provide intelligent responses and maintain conversation flow.
-
-### How It Works
-
-The mock system uses static dataset ([`mock_data.json`](./servers/tavily_search_server/tools/mock_data.json) for car research) that provides realistic responses when the `MOCK_TAVILY_SEARCH=true` environment variable is set. This allows the assistant to demonstrate its full capabilities using predetermined data.
-
-For technical implementation details, see the [Web Search MCP Server README](servers/tavily_search_server/README.md#testing-with-mock-data).
-
-## Setup
-
-### Prerequisites
-- Python 3.10 or higher
-- pip (Python package installer)
-
-### Installation
-
-**Install dependencies** from the `pyproject.toml`:
+2. Start services bu running:
 ```bash
-pip install -e .
+./scripts/workshop_start.sh 
 ```
 
-### Create .env file
+3. Verify everything works:
+```bash
+./scripts/workshop_verify.sh 
+```
 
-Copy the example environment file and fill in your API keys:
+## Core Concept: MCP vs A2A vs Orchestration
+1. MCP
+- Use for tool-like capabilities with explicit schemas and predictable I/O.
+- Good fit: search, booking query, deterministic lookups.
 
-1. **Copy the example file to create your own `.env` file:**
-   ```bash
-   cp .env_example .env
-   ```
+2. A2A
+- Use when delegating to another autonomous specialist agent with its own lifecycle/state.
+- Good fit: multi-step car shopping decisions and reservation workflow.
 
-2. **Open the `.env` file** in a text editor and fill in the required values:
-   - `OPENAI_API_KEY`: Your OpenAI API key
-   - `RASA_PRO_LICENSE`: Your Rasa Pro license key
-   - `TAVILY_API_KEY`: Your Tavily API key for web search functionality
-   - `GOOGLE_API_KEY`: Your Google API key for Gemini integration
+3. Orchestration
+- Use for cross-step journey control, context continuity, and routing decisions.
+- Good fit: deciding which specialist/tool to invoke next across the full customer journey.
 
-The OPENAI_API_KEY is required as we are using `gpt-4o` as the default LLM within
-Rasa. If you switch to a different LLM (see
-[documentation](https://rasa.com/docs/reference/config/components/llm-configuratio)),
-the key might not be needed.
+## Lab Exercise
+# Workshop Scenarios
 
-Make sure to save the `.env` file in the root of the `car-purchase-assistant`
-directory.
+## End-to-End Happy Path Example
+Objective: trace orchestration across all phases.
 
-### Running the Assistant
+Prompt sequence:
+1. "I need a reliable compact SUV under $35k."
+2. "Find one at a dealer near me."
+3. "Can I afford this with a 72-month loan?"
+4. "Book me an appointment next Tuesday afternoon."
 
-#### Either, with `docker compose`
- - Run `docker compose up`
+Expected checks:
+1. MCP search is used for research.
+2. A2A shopping agent is used for dealer/car decisioning.
+3. Financing flow runs in main orchestrator context.
+4. MCP appointment tool is called for scheduling.
 
-#### Or, *without* `docker compose`:
-To run the car purchase assistant, follow these steps in order:
+## Ambiguous Decision Scenarios
+1. Cross-Agent handoff policy when one agent is active
 
-1. **Start the Web Search MCP server**
+* User: I’m looking for a reliable used sedan under $25,000.
+* Assistant: I can help with that. Do you have a preferred model or dealer?
+* User: Show me options near me.
+* Assistant: I found a 2023 Mazda3 at Budget Cars Plus for $22,000. Would you like to reserve it?
+* User: Can I afford this with a 72-month loan and $5,000 down?
+* Assistant: Sure, I’ll check affordability. What are your monthly income and monthly expenses?
+* User: Income is $9,000 and expenses are $3,200.
+* Assistant: Based on your finances, here’s your affordability assessment and estimated monthly payment range.
+* Assistant: Returning to your selected car: the 2023 Mazda3 at Budget Cars Plus for $22,000.
+* Assistant: Would you like to proceed with reserving it?
+* User: Yes, reserve it.
+* Assistant: Done. I’ve recorded your reservation decision for the 2023 Mazda3 at Budget Cars Plus.
+* User: Great, now book a test-drive appointment next Tuesday afternoon.
+* Assistant: I found available slots and booked your appointment for next Tuesday afternoon.
 
-   To start the web search MCP server, follow the instructions provided in the [Web Search MCP Server README](servers/tavily_search_server/README.md).
+2. Need dealer recommendations, affordability pre-check, and then an immediate reservation suggestion in one continuous conversation.
 
-2. **Start the Appointment Booking MCP server**
-
-   To start the appointment booking MCP server, follow the instructions provided in the [Appointment Booking MCP Server README](servers/appointment_booking_server/README.md).
-
-3. **Start the Car Shopping A2A server**
-
-   To start the car shopping A2A server, follow the instructions provided in the [Car Shopping A2A Server README](servers/car_shopping_server/README.md).
-
-4. **Train the Rasa model**
-   In another terminal (from the project root), train the assistant:
-   ```bash
-   rasa train
-   ```
-
-5. **Run the assistant in interactive mode**
-   Still in the project root, start the assistant:
-   ```bash
-   rasa inspect
-   ```
-   This will launch an interactive shell where you can chat with the assistant.
-
-**Note:**
-Make sure your `.env` file is set up with the required API keys before starting. You'll need:
-- `TAVILY_API_KEY` for web search functionality
-- `GOOGLE_API_KEY` for the car shopping A2A server
-- `OPENAI_API_KEY` for the main Rasa assistant
-- `RASA_PRO_LICENSE` for Rasa Pro
+* User: I’m looking for a compact SUV under $35k. Can you recommend dealers that have good options nearby?
+* Assistant: I can help with that. Are you looking for a new or used compact SUV, and what matters most to you: price, safety, features, or dealer distance?
+* User: New. Safety and dealer distance matter most.
+* Assistant: Do you have a preferred trim level, and what’s the maximum distance you want to travel to a dealer?
+* User: Premium trim if possible, and no more than 15 miles.
+* Assistant: I found a few dealer options that match your preferences. The best match is the 2024 Subaru Forester at Family Auto Hub for $31,000. It has a high safety score and the dealer is only 9 miles away. Would you like me to check whether this fits your budget before we reserve it?
+* User: Yes. Check if I can afford it with a 72-month loan and $5k down.
+* Assistant: I’ll help with that. What is your monthly gross income before taxes?
+* User: 15000
+* Assistant: What are your estimated monthly expenses excluding existing debt payments?
+* User: 5000
+* Assistant: Based on your monthly income of $15000 and monthly expenses of $5000, your debt-to-income ratio is healthy enough for this loan scenario. Do you want to continue with the 2024 Subaru Forester at Family Auto Hub?
+* User: Yes, reserve it.
+* Assistant: Done. I’ve recorded your reservation request for the 2024 Subaru Forester at Family Auto Hub for $31,000.
