@@ -1,4 +1,4 @@
-# Customer Success Engineering Workshop (Offsite Spring 2026): MCP, A2A, and Orchestration
+# CSE Offsite Spring 2026: MCP/ A2A Orchestration
 
 ## Learning Outcomes
 By the end of this workshop, participants can:
@@ -65,7 +65,7 @@ Expected checks:
 4. MCP appointment tool is called for scheduling.
 
 ## Ambiguous Decision Scenarios
-1. Cross-Agent handoff policy when one agent is active
+### 1. Cross-Agent handoff policy when one agent is active
 
 * User: I’m looking for a reliable used sedan under $25,000.
 * Assistant: I can help with that. Do you have a preferred model or dealer?
@@ -82,7 +82,7 @@ Expected checks:
 * User: Great, now book a test-drive appointment next Tuesday afternoon.
 * Assistant: I found available slots and booked your appointment for next Tuesday afternoon.
 
-2. Need dealer recommendations, affordability pre-check, and then an immediate reservation suggestion in one continuous conversation.
+### 2. Need dealer recommendations, affordability pre-check, and then an immediate reservation suggestion in one continuous conversation.
 
 * User: I’m looking for a compact SUV under $35k. Can you recommend dealers that have good options nearby?
 * Assistant: I can help with that. Are you looking for a new or used compact SUV, and what matters most to you: price, safety, features, or dealer distance?
