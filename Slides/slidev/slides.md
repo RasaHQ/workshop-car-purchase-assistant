@@ -18,14 +18,14 @@ defaults:
 
 <div class="mt-10 grid grid-cols-2 gap-3 max-w-2xl mx-auto text-left">
   <div v-for="item in [
-    'Core concepts',
-    'MCP React agents',
-    'Connecting via A2A',
-    'File structure',
-    'Orchestration',
-    'What\'s in the future',
-    'Troubleshooting quiz',
-    'Debugging walkthrough',
+    'Core concepts & function calling',
+    'MCP — tools as a standard',
+    'Designing tools for agents',
+    'A2A — agent delegation',
+    'Workshop project walkthrough',
+    'Orchestration with Rasa flows',
+    'Hands-on demo & setup',
+    'Lab exercise & troubleshooting',
   ]" class="bg-[#141414] border border-[#222] rounded-lg px-4 py-2.5 text-sm text-gray-300 flex items-center gap-3">
     <span class="text-green-400 font-extrabold shrink-0">›</span>
     <span>{{ item }}</span>
@@ -632,6 +632,971 @@ clicks: 6
   <div v-if="$clicks === 6">
     <div class="text-green-400 font-extrabold text-xs tracking-widest mb-1">P7 — MINIMAL RESPONSES</div>
     <div class="text-gray-300 text-sm">Return just enough — tool responses go back into the context window. Keep them small and include a "next" hint so the model knows what to do.</div>
+  </div>
+</div>
+
+<style>
+  h1 { color: #fff; font-size: 2rem; font-weight: 800; }
+  .slidev-layout { background: #0a0a0a; }
+</style>
+
+---
+layout: center
+class: text-center
+---
+
+<div class="text-green-400 text-xs font-extrabold tracking-widest mb-4">SECTION 3</div>
+
+# Agent-to-Agent Protocol
+
+<div class="mt-4 text-gray-500 text-lg">When tools aren't enough — delegate to autonomous agents</div>
+
+<style>
+  h1 { color: #fff; font-size: 3rem; font-weight: 800; line-height: 1.2; }
+  .slidev-layout { background: #0a0a0a; }
+</style>
+
+---
+
+# What is A2A?
+
+<div class="text-gray-400 text-sm font-semibold -mt-2 mb-6">Google's Agent-to-Agent protocol — April 2025</div>
+
+<div class="grid grid-cols-2 gap-6">
+  <div class="bg-[#141414] border border-[#222] border-t-3 border-t-purple-400 rounded-xl p-5">
+    <div class="text-purple-400 text-xs font-extrabold tracking-widest mb-3">THE IDEA</div>
+    <div class="text-gray-300 text-sm leading-relaxed mb-3">
+      A standard for agents to <span class="text-purple-400 font-bold">discover, communicate with, and delegate tasks to</span> other agents — regardless of framework.
+    </div>
+    <div class="text-gray-500 text-xs font-mono bg-[#0d0d0d] rounded p-3">
+      Orchestrator → Agent Card → Task → Artifacts
+    </div>
+  </div>
+  <div class="flex flex-col gap-3">
+    <div v-for="[label, desc] in [
+      ['Agent Card', 'JSON manifest declaring skills, I/O modes, and endpoint URL'],
+      ['Task lifecycle', 'submitted → working → input_required → completed / failed'],
+      ['Artifacts', 'Structured data returned alongside conversational text'],
+      ['Streaming', 'Real-time status updates while the agent works'],
+    ]" class="bg-[#141414] border border-[#222] rounded-lg px-4 py-2.5 text-sm">
+      <span class="text-purple-400 font-bold">{{ label }}</span>
+      <span class="text-gray-500 ml-2">{{ desc }}</span>
+    </div>
+  </div>
+</div>
+
+<div class="mt-3 bg-[#141414] border-l-3 border-purple-400 rounded-r-md px-5 py-2 font-mono text-xs text-gray-500">
+  MCP = portable tools · A2A = portable agents
+</div>
+
+<style>
+  h1 { color: #fff; font-size: 2rem; font-weight: 800; }
+  .slidev-layout { background: #0a0a0a; }
+</style>
+
+---
+
+# When to use which — in Rasa
+
+<div class="text-gray-400 text-sm font-semibold -mt-2 mb-4">Three patterns for connecting subagents to the orchestrator</div>
+
+<div class="grid grid-cols-3 gap-3 mb-4">
+  <div class="bg-[#141414] border border-[#222] border-t-3 border-t-green-400 rounded-xl p-4">
+    <div class="text-green-400 text-xs font-extrabold tracking-widest mb-2">MCP + REACT AGENT</div>
+    <div class="text-gray-300 text-sm leading-relaxed">Built-in Rasa agent that <span class="text-green-400 font-bold">autonomously reasons</span> over MCP tools in a ReAct loop. Can mix MCP and custom tools.</div>
+    <div class="mt-3 text-gray-500 text-xs">MCPOpenAgent · MCPTaskAgent</div>
+  </div>
+  <div class="bg-[#141414] border border-[#222] border-t-3 border-t-orange-400 rounded-xl p-4">
+    <div class="text-orange-400 text-xs font-extrabold tracking-widest mb-2">MCP DIRECT FLOW CALL</div>
+    <div class="text-gray-300 text-sm leading-relaxed">Call <span class="text-orange-400 font-bold">one specific MCP tool</span> from a flow step. No agent reasoning — deterministic with explicit slot mapping.</div>
+    <div class="mt-3 text-gray-500 text-xs">call + mcp_server + mapping</div>
+  </div>
+  <div class="bg-[#141414] border border-[#222] border-t-3 border-t-purple-400 rounded-xl p-4">
+    <div class="text-purple-400 text-xs font-extrabold tracking-widest mb-2">A2A EXTERNAL AGENT</div>
+    <div class="text-gray-300 text-sm leading-relaxed"><span class="text-purple-400 font-bold">Different team, different tech</span> — connected via Agent Card. Owns its own LLM, tools, deploy lifecycle.</div>
+    <div class="mt-3 text-gray-500 text-xs">A2AAgent · AgentCard</div>
+  </div>
+</div>
+
+<div class="bg-[#141414] border-l-3 border-yellow-400 rounded-r-lg px-5 py-4 text-gray-300 text-sm leading-relaxed">
+  <span class="text-yellow-400 font-bold">Decision guide:</span> Does the task need <span class="text-green-400 font-bold">autonomous tool selection</span>? → ReAct agent. Is it a <span class="text-orange-400 font-bold">single predictable call</span>? → Direct flow. Is it <span class="text-purple-400 font-bold">built by another team or in a different stack</span>? → A2A.
+</div>
+
+<style>
+  h1 { color: #fff; font-size: 2rem; font-weight: 800; }
+  .slidev-layout { background: #0a0a0a; }
+</style>
+
+---
+clicks: 1
+---
+
+# Pattern 1 — MCP + ReAct Agent
+
+<div class="text-gray-400 text-sm font-semibold -mt-2 mb-4">Workshop example: Car Research Agent — <span class="text-green-400">press → for implementation</span></div>
+
+<div v-if="$clicks === 0" class="grid grid-cols-2 gap-4">
+  <div class="bg-[#141414] border border-[#222] border-t-3 border-t-green-400 rounded-xl p-5">
+    <div class="text-green-400 text-xs font-extrabold tracking-wide mb-3">SUB-AGENT CONFIG</div>
+
+```yaml
+# sub_agents/research_agent/config.yml
+agent:
+  name: research_new_cars
+  protocol: rasa              # ← ReAct agent
+configuration:
+  module: custom.car_research_agent
+    .CarResearchAgent
+connections:
+  mcp_servers:
+    - name: tavily_search     # ← MCP tools
+```
+
+  </div>
+  <div class="flex flex-col gap-4">
+    <div class="bg-[#141414] border border-[#222] rounded-xl p-5">
+      <div class="text-orange-400 text-xs font-extrabold tracking-wide mb-3">FLOW — ONE STEP</div>
+
+```yaml
+# data/flows/car_research.yml
+flows:
+  car_research:
+    description: Help the user choose
+      a car by searching the web
+    steps:
+      - call: research_new_cars
+```
+
+  </div>
+    <div class="bg-[#141414] border-l-3 border-yellow-400 rounded-r-lg px-5 py-4 text-gray-300 text-sm leading-relaxed">
+      The orchestrator just calls the sub-agent — the agent <span class="text-green-400 font-bold">autonomously decides</span> which MCP tools to invoke in its ReAct loop.
+    </div>
+  </div>
+</div>
+<div v-if="$clicks >= 1" class="grid grid-cols-2 gap-4">
+  <div class="bg-[#141414] border border-[#222] border-t-3 border-t-green-400 rounded-xl p-5">
+    <div class="text-green-400 text-xs font-extrabold tracking-wide mb-3">CLASS STRUCTURE</div>
+    <div class="font-mono text-sm text-gray-300 mb-4">class CarResearchAgent(<span class="text-green-400">MCPOpenAgent</span>)</div>
+    <div class="space-y-3">
+      <div class="bg-[#0d0d0d] rounded-lg px-4 py-3">
+        <div class="text-green-400 font-mono text-xs font-bold">get_custom_tool_definitions()</div>
+        <div class="text-gray-500 text-xs mt-1">Registers <span class="text-white">recommend_cars</span> alongside MCP tools</div>
+      </div>
+      <div class="bg-[#0d0d0d] rounded-lg px-4 py-3">
+        <div class="text-green-400 font-mono text-xs font-bold">recommend_cars(args)</div>
+        <div class="text-gray-500 text-xs mt-1">Custom tool — calls <span class="text-white">gpt-4o-mini</span> to analyze Tavily results → structured JSON recs</div>
+      </div>
+      <div class="bg-[#0d0d0d] rounded-lg px-4 py-3">
+        <div class="text-green-400 font-mono text-xs font-bold">process_tool_output(results)</div>
+        <div class="text-gray-500 text-xs mt-1">Extracts model names → <span class="text-white">SlotSet("recommended_car_models")</span></div>
+      </div>
+    </div>
+  </div>
+  <div class="flex flex-col gap-4">
+    <div class="bg-[#141414] border-l-3 border-yellow-400 rounded-r-lg px-5 py-4 text-gray-300 text-sm leading-relaxed">
+      The ReAct agent autonomously chains: <span class="text-green-400 font-bold">tavily_search</span> (MCP) → <span class="text-green-400 font-bold">recommend_cars</span> (custom) → slots set for next flow.
+    </div>
+    <div class="bg-[#141414] border border-[#222] rounded-xl p-5">
+      <div class="text-orange-400 text-xs font-extrabold tracking-widest mb-3">LET'S LOOK AT THE CODE</div>
+      <div class="text-gray-400 text-sm mb-2">Open in IDE:</div>
+      <div class="font-mono text-xs text-green-400 bg-[#0d0d0d] rounded px-3 py-2">custom/car_research_agent.py</div>
+      <div class="mt-3 text-gray-500 text-xs">Key things to notice: how <span class="text-white">get_custom_tool_definitions</span> wires both MCP and custom tools, and how <span class="text-white">process_tool_output</span> maps results to Rasa slots.</div>
+    </div>
+  </div>
+</div>
+
+<style>
+  h1 { color: #fff; font-size: 2rem; font-weight: 800; }
+  .slidev-layout { background: #0a0a0a; }
+</style>
+
+---
+clicks: 1
+---
+
+# Pattern 2 — MCP Direct Flow Call
+
+<div class="text-gray-400 text-sm font-semibold -mt-2 mb-4">Workshop example: Appointment Booking — <span class="text-orange-400">press → for MCPTaskAgent code</span></div>
+
+<div v-if="$clicks === 0" class="grid grid-cols-2 gap-4">
+  <div class="bg-[#141414] border border-[#222] border-t-3 border-t-orange-400 rounded-xl p-5">
+    <div class="text-orange-400 text-xs font-extrabold tracking-wide mb-3">FLOW — BOTH PATTERNS IN ONE</div>
+
+```yaml
+# data/flows/schedule_appointment.yml
+flows:
+  schedule_new_appointment:
+    steps:
+      - call: appointment_selector        # ← ReAct agent
+        exit_if:
+          - slots.selected_appointment_slot is not null
+      - collect: user_confirmation        # ← confirm with user
+        ask_before_filling: true
+      - call: book_appointment            # ← DIRECT MCP call
+        mcp_server: appointment_booking
+        mapping:
+          input:
+            - param: appointment_slot
+              slot: selected_appointment_slot
+          output:
+            - slot: appointment_confirmed
+              value: result.structuredContent
+                .appointment_confirmed
+      - action: utter_appointment_confirmed
+```
+
+  </div>
+  <div class="bg-[#141414] border border-[#222] rounded-xl p-5">
+    <div class="text-yellow-400 text-xs font-extrabold tracking-widest mb-3">KEY INSIGHT</div>
+    <div class="text-gray-300 text-sm leading-relaxed mb-4">
+      Same flow uses <span class="text-green-400 font-bold">both patterns</span>:
+    </div>
+    <div class="space-y-3 text-sm">
+      <div class="flex items-start gap-3">
+        <span class="text-green-400 font-extrabold shrink-0">1</span>
+        <span class="text-gray-300"><span class="text-green-400 font-bold">ReAct agent</span> (<span class="font-mono text-xs">appointment_selector</span>) reasons autonomously to find the best slot</span>
+      </div>
+      <div class="flex items-start gap-3">
+        <span class="text-orange-400 font-extrabold shrink-0">2</span>
+        <span class="text-gray-300"><span class="text-orange-400 font-bold">Direct MCP call</span> (<span class="font-mono text-xs">book_appointment</span>) confirms the booking — no reasoning needed</span>
+      </div>
+    </div>
+    <div class="mt-6 bg-[#141414] border-l-3 border-orange-400 rounded-r-lg px-5 py-4 text-gray-400 text-sm">
+      The flow orchestrates both: an autonomous agent for the complex part, a direct tool call for the simple part.
+    </div>
+  </div>
+</div>
+<div v-if="$clicks >= 1" class="grid grid-cols-2 gap-4">
+  <div class="bg-[#141414] border border-[#222] border-t-3 border-t-green-400 rounded-xl p-5">
+    <div class="text-green-400 text-xs font-extrabold tracking-wide mb-3">CLASS STRUCTURE</div>
+    <div class="font-mono text-sm text-gray-300 mb-4">class AppointmentBookingAgent(<span class="text-green-400">MCPTaskAgent</span>)</div>
+    <div class="space-y-3">
+      <div class="bg-[#0d0d0d] rounded-lg px-4 py-3">
+        <div class="text-green-400 font-mono text-xs font-bold">process_input(input)</div>
+        <div class="text-gray-500 text-xs mt-1">Filters slots — only passes <span class="text-white">dealer_name</span>, <span class="text-white">car_model</span>, <span class="text-white">selected_appointment_slot</span></div>
+      </div>
+      <div class="bg-[#0d0d0d] rounded-lg px-4 py-3">
+        <div class="text-orange-400 font-mono text-xs font-bold">Injects current_date_time</div>
+        <div class="text-gray-500 text-xs mt-1">Agent needs to know "today" to find relevant slots — added as a synthetic slot</div>
+      </div>
+    </div>
+    <div class="mt-4 bg-[#141414] border-l-3 border-orange-400 rounded-r-lg px-4 py-3 text-gray-500 text-xs">
+      This MCPTaskAgent connects to <span class="text-green-400 font-mono">appointment_booking</span> MCP server — but the flow <span class="text-orange-400 font-bold">excludes</span> <span class="font-mono text-white">book_appointment</span> from the agent (it's called directly in the flow instead).
+    </div>
+  </div>
+  <div class="bg-[#141414] border border-[#222] rounded-xl p-5">
+    <div class="text-orange-400 text-xs font-extrabold tracking-widest mb-3">LET'S LOOK AT THE CODE</div>
+    <div class="text-gray-400 text-sm mb-3">Two files to explore:</div>
+    <div class="space-y-2">
+      <div class="font-mono text-xs text-orange-400 bg-[#0d0d0d] rounded px-3 py-2">custom/appointment_booking_agent.py</div>
+      <div class="font-mono text-xs text-orange-400 bg-[#0d0d0d] rounded px-3 py-2">sub_agents/appointment_selector/config.yml</div>
+    </div>
+    <div class="mt-4 text-gray-500 text-xs leading-relaxed">
+      Notice how <span class="text-white">config.yml</span> uses <span class="text-orange-400 font-bold">exclude_tools: [book_appointment]</span> — this is what forces that tool to be called directly from the flow instead of by the agent.
+    </div>
+  </div>
+</div>
+
+<style>
+  h1 { color: #fff; font-size: 2rem; font-weight: 800; }
+  .slidev-layout { background: #0a0a0a; }
+</style>
+
+---
+clicks: 1
+---
+
+# Pattern 3 — A2A External Agent
+
+<div class="text-gray-400 text-sm font-semibold -mt-2 mb-4">Workshop example: Car Shopping Agent — <span class="text-purple-400">press → for Rasa wrapper code</span></div>
+
+<div v-if="$clicks === 0" class="grid grid-cols-2 gap-4">
+  <div class="bg-[#141414] border border-[#222] border-t-3 border-t-purple-400 rounded-xl p-5">
+    <div class="text-purple-400 text-xs font-extrabold tracking-wide mb-3">SUB-AGENT CONFIG + AGENT CARD</div>
+
+```yaml
+# sub_agents/shopping_agent/config.yml
+agent:
+  name: shopping_agent
+  protocol: a2a           # ← A2A protocol
+configuration:
+  agent_card: ./agent_card.json
+  module: custom.car_shopping_agent.CarShoppingAgent
+```
+
+  <div class="mt-3 bg-[#0d0d0d] rounded-lg px-4 py-3">
+    <div class="text-purple-400 text-[10px] font-extrabold tracking-widest mb-1">AGENT CARD DECLARES</div>
+    <div class="text-gray-500 text-xs font-mono">url: http://...A2A_server:10002</div>
+    <div class="text-gray-500 text-xs font-mono">capabilities: { streaming: true }</div>
+    <div class="text-gray-500 text-xs font-mono">skills: [{ id: "search_cars" }]</div>
+  </div>
+  </div>
+  <div class="bg-[#141414] border border-[#222] border-t-3 border-t-purple-400 rounded-xl p-5">
+    <div class="text-purple-400 text-xs font-extrabold tracking-wide mb-3">WHY A2A FOR THIS?</div>
+    <div class="space-y-3 text-sm">
+      <div class="flex items-start gap-3">
+        <span class="text-purple-400 font-extrabold shrink-0">›</span>
+        <span class="text-gray-300"><span class="text-white font-bold">Different team</span> — built and maintained independently from the orchestrator</span>
+      </div>
+      <div class="flex items-start gap-3">
+        <span class="text-purple-400 font-extrabold shrink-0">›</span>
+        <span class="text-gray-300"><span class="text-white font-bold">Different stack</span> — Google ADK + Gemini vs Rasa + GPT-4o</span>
+      </div>
+      <div class="flex items-start gap-3">
+        <span class="text-purple-400 font-extrabold shrink-0">›</span>
+        <span class="text-gray-300"><span class="text-white font-bold">Own deploy lifecycle</span> — ships, scales, updates independently</span>
+      </div>
+      <div class="flex items-start gap-3">
+        <span class="text-purple-400 font-extrabold shrink-0">›</span>
+        <span class="text-gray-300"><span class="text-white font-bold">Complex workflow</span> — multi-turn with own tools, state, reasoning</span>
+      </div>
+    </div>
+    <div class="mt-3 bg-[#141414] border-l-3 border-purple-400 rounded-r-lg px-5 py-3 text-gray-400 text-sm">
+      A2A solves the <span class="text-purple-400 font-bold">organizational problem</span> — different team, different tech, different release cycle.
+    </div>
+  </div>
+</div>
+<div v-if="$clicks >= 1" class="grid grid-cols-2 gap-4">
+  <div class="bg-[#141414] border border-[#222] border-t-3 border-t-orange-400 rounded-xl p-5">
+    <div class="text-orange-400 text-xs font-extrabold tracking-wide mb-3">CLASS STRUCTURE</div>
+    <div class="font-mono text-sm text-gray-300 mb-4">class CarShoppingAgent(<span class="text-purple-400">A2AAgent</span>)</div>
+    <div class="space-y-3">
+      <div class="bg-[#0d0d0d] rounded-lg px-4 py-3">
+        <div class="text-purple-400 font-mono text-xs font-bold">process_input(input)</div>
+        <div class="text-gray-500 text-xs mt-1">Filters slots — only passes <span class="text-white">recommended_car_models</span> and <span class="text-white">recommended_car_details</span> to the A2A agent</div>
+      </div>
+      <div class="bg-[#0d0d0d] rounded-lg px-4 py-3">
+        <div class="text-purple-400 font-mono text-xs font-bold">process_agent_output(output)</div>
+        <div class="text-gray-500 text-xs mt-1">Extracts <span class="text-white">final_reservation_decision</span> from A2A artifacts</div>
+      </div>
+      <div class="bg-[#0d0d0d] rounded-lg px-4 py-3">
+        <div class="text-green-400 font-mono text-xs font-bold">State contract enforcement</div>
+        <div class="text-gray-500 text-xs mt-1">Validates required fields (<span class="text-white">final_decision</span>, <span class="text-white">car_model</span>, <span class="text-white">dealer_name</span>, <span class="text-white">price</span>) before setting slots</div>
+      </div>
+    </div>
+  </div>
+  <div class="flex flex-col gap-4">
+    <div class="bg-[#141414] border-l-3 border-purple-400 rounded-r-lg px-5 py-4 text-gray-300 text-sm leading-relaxed">
+      On <span class="text-green-400 font-bold">reserve</span> decision: sets <span class="text-white font-mono text-xs">car_model</span>, <span class="text-white font-mono text-xs">car_price</span>, <span class="text-white font-mono text-xs">dealer_name</span> slots — these persist across flows for financing and booking.
+    </div>
+    <div class="bg-[#141414] border border-[#222] rounded-xl p-5">
+      <div class="text-orange-400 text-xs font-extrabold tracking-widest mb-3">LET'S LOOK AT THE CODE</div>
+      <div class="text-gray-400 text-sm mb-3">Two sides to explore:</div>
+      <div class="space-y-2">
+        <div class="font-mono text-xs text-purple-400 bg-[#0d0d0d] rounded px-3 py-2">custom/car_shopping_agent.py <span class="text-gray-600">← Rasa wrapper</span></div>
+        <div class="font-mono text-xs text-purple-400 bg-[#0d0d0d] rounded px-3 py-2">servers/car_shopping_server/agent.py <span class="text-gray-600">← Gemini agent</span></div>
+        <div class="font-mono text-xs text-purple-400 bg-[#0d0d0d] rounded px-3 py-2">servers/car_shopping_server/agent_executor.py <span class="text-gray-600">← A2A protocol</span></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<style>
+  h1 { color: #fff; font-size: 2rem; font-weight: 800; }
+  .slidev-layout { background: #0a0a0a; }
+</style>
+
+---
+
+# A2A Task Lifecycle
+
+<div class="text-gray-400 text-sm font-semibold -mt-2 mb-4">State machine for agent delegation</div>
+
+<div class="flex items-center justify-center gap-3 mb-6">
+  <div v-for="[state, color, active] in [
+    ['submitted', 'border-gray-500 text-gray-400', false],
+    ['working', 'border-orange-400 text-orange-400', false],
+    ['input_required', 'border-yellow-400 text-yellow-400', false],
+    ['completed', 'border-green-400 text-green-400', false],
+    ['failed', 'border-red-400 text-red-400', false],
+  ]" class="flex items-center gap-3">
+    <div :class="color" class="border-2 rounded-lg px-4 py-2 text-xs font-extrabold tracking-wide bg-[#141414]">{{ state }}</div>
+    <span v-if="state !== 'failed'" class="text-gray-600 font-mono text-xs">→</span>
+  </div>
+</div>
+
+<div class="grid grid-cols-2 gap-4">
+  <div class="bg-[#141414] border border-[#222] rounded-xl p-5">
+    <div class="text-orange-400 text-xs font-extrabold tracking-widest mb-3">ORCHESTRATOR SENDS TASK</div>
+    <div class="space-y-2 text-sm">
+      <div class="flex items-start gap-3">
+        <span class="text-blue-400 font-extrabold shrink-0">1</span>
+        <span class="text-gray-300">Orchestrator discovers agent via <span class="text-purple-400 font-bold">Agent Card</span></span>
+      </div>
+      <div class="flex items-start gap-3">
+        <span class="text-blue-400 font-extrabold shrink-0">2</span>
+        <span class="text-gray-300">Sends user query + context as a <span class="text-purple-400 font-bold">Task</span></span>
+      </div>
+      <div class="flex items-start gap-3">
+        <span class="text-blue-400 font-extrabold shrink-0">3</span>
+        <span class="text-gray-300">Agent streams <span class="text-orange-400 font-bold">working</span> status updates</span>
+      </div>
+    </div>
+  </div>
+  <div class="bg-[#141414] border border-[#222] rounded-xl p-5">
+    <div class="text-green-400 text-xs font-extrabold tracking-widest mb-3">AGENT RETURNS RESULT</div>
+    <div class="space-y-2 text-sm">
+      <div class="flex items-start gap-3">
+        <span class="text-blue-400 font-extrabold shrink-0">4</span>
+        <span class="text-gray-300">May request more input → <span class="text-yellow-400 font-bold">input_required</span></span>
+      </div>
+      <div class="flex items-start gap-3">
+        <span class="text-blue-400 font-extrabold shrink-0">5</span>
+        <span class="text-gray-300">Returns <span class="text-green-400 font-bold">artifacts</span> with structured data</span>
+      </div>
+      <div class="flex items-start gap-3">
+        <span class="text-blue-400 font-extrabold shrink-0">6</span>
+        <span class="text-gray-300">Orchestrator maps artifacts → <span class="text-green-400 font-bold">slots</span></span>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="mt-3 bg-[#141414] border-l-3 border-green-400 rounded-r-md px-5 py-2 font-mono text-xs text-gray-500">
+  State contract versioning ensures handoff stability across deployments
+</div>
+
+<style>
+  h1 { color: #fff; font-size: 2rem; font-weight: 800; }
+  .slidev-layout { background: #0a0a0a; }
+</style>
+
+---
+layout: center
+class: text-center
+---
+
+<div class="text-green-400 text-xs font-extrabold tracking-widest mb-4">SECTION 4</div>
+
+# The Workshop Project
+
+<div class="mt-4 text-gray-500 text-lg">Car Purchase Assistant — MCP + A2A orchestrated by Rasa</div>
+
+<style>
+  h1 { color: #fff; font-size: 3rem; font-weight: 800; line-height: 1.2; }
+  .slidev-layout { background: #0a0a0a; }
+</style>
+
+---
+
+# Architecture Overview
+
+<div class="text-gray-400 text-sm font-semibold -mt-2 mb-4">Docker Compose topology — 5 services</div>
+
+<div class="flex gap-4 items-stretch">
+  <div class="border-2 border-green-400 rounded-xl bg-[#111] p-4 flex flex-col gap-2 min-w-[220px]">
+    <div class="text-green-400 text-[10px] font-extrabold tracking-widest mb-1">ORCHESTRATOR · :5005</div>
+    <div class="text-white text-lg font-extrabold">Rasa Pro</div>
+    <div class="text-gray-500 text-xs">GPT-4o · FlowPolicy</div>
+    <div class="text-gray-500 text-xs">Routes intent → specialist</div>
+    <div class="mt-2 bg-[#1a1a1a] border border-[#282828] rounded-lg px-3 py-2 text-xs text-gray-400">
+      <div class="text-orange-400 font-bold text-[10px] mb-1">FLOWS</div>
+      <div>car_research → MCP</div>
+      <div>car_shopping → A2A</div>
+      <div>schedule_appointment → MCP</div>
+      <div>calculate_loan → native</div>
+    </div>
+  </div>
+  <div class="flex flex-col justify-around text-gray-500 font-mono text-xs py-4">
+    <div>── HTTP ──→</div>
+    <div>── HTTP ──→</div>
+    <div>── A2A ──→</div>
+  </div>
+  <div class="flex flex-col gap-2 justify-center flex-1">
+    <div class="bg-[#141414] border border-dashed border-[#333] rounded-lg px-4 py-3">
+      <div class="flex items-center gap-2">
+        <span class="text-green-400 text-[10px] font-extrabold tracking-widest">MCP SERVER · :8001</span>
+      </div>
+      <div class="text-white text-sm font-bold mt-1">Tavily Web Search</div>
+      <div class="text-gray-500 text-xs">FastMCP · tavily_search tool</div>
+    </div>
+    <div class="bg-[#141414] border border-dashed border-[#333] rounded-lg px-4 py-3">
+      <div class="flex items-center gap-2">
+        <span class="text-green-400 text-[10px] font-extrabold tracking-widest">MCP SERVER · :8002</span>
+      </div>
+      <div class="text-white text-sm font-bold mt-1">Appointment Booking</div>
+      <div class="text-gray-500 text-xs">FastMCP · query_available + book_appointment</div>
+    </div>
+    <div class="bg-[#141414] border border-dashed border-purple-400/50 rounded-lg px-4 py-3">
+      <div class="flex items-center gap-2">
+        <span class="text-purple-400 text-[10px] font-extrabold tracking-widest">A2A SERVER · :10002</span>
+      </div>
+      <div class="text-white text-sm font-bold mt-1">Car Shopping Agent</div>
+      <div class="text-gray-500 text-xs">Google ADK · Gemini 2.5-flash · own tools + LLM</div>
+    </div>
+  </div>
+</div>
+
+<div class="mt-3 bg-[#141414] border-l-3 border-green-400 rounded-r-md px-5 py-2 font-mono text-xs text-gray-500">
+  ./scripts/workshop_start.sh → docker compose up — trains model + starts all 5 services
+</div>
+
+<style>
+  h1 { color: #fff; font-size: 2rem; font-weight: 800; }
+  .slidev-layout { background: #0a0a0a; }
+</style>
+
+---
+
+# A2A Server — Car Shopping Agent
+
+<div class="text-gray-400 text-sm font-semibold -mt-2 mb-4">servers/car_shopping_server/ — autonomous agent with its own LLM</div>
+
+<div class="grid grid-cols-2 gap-4">
+  <div class="bg-[#141414] border border-[#222] border-t-3 border-t-purple-400 rounded-xl p-4">
+    <div class="text-purple-400 text-xs font-extrabold tracking-wide mb-2">AGENT (Google ADK + Gemini)</div>
+
+```python
+class CarShoppingAgent:
+  def _build_agent(self) -> LlmAgent:
+    return LlmAgent(
+      model="gemini-2.5-flash",
+      name="car_shopping_agent",
+      tools=[
+        check_car_availability_tool,
+        find_similar_cars_tool,
+        get_dealer_recommendations_tool,
+        finalize_purchase_tool,
+      ],
+    )
+
+  async def stream(self, query, session_id):
+    async for event in self._runner.run_async(...):
+      if event.is_final_response():
+        yield {"is_task_complete": True, ...}
+```
+
+  </div>
+  <div class="bg-[#141414] border border-[#222] border-t-3 border-t-orange-400 rounded-xl p-4">
+    <div class="text-orange-400 text-xs font-extrabold tracking-wide mb-2">EXECUTOR (A2A protocol layer)</div>
+
+```python
+STATE_CONTRACT = "shopping-a2a-v1"
+
+class CarShoppingAgentExecutor(AgentExecutor):
+  async def execute(self, context, queue):
+    updater = TaskUpdater(queue, ...)
+    await updater.submit()
+
+    async for item in agent.stream(...):
+      if not item["is_task_complete"]:
+        await updater.update_status(
+          TaskState.working, ...)
+      elif item["finalize_tool_called"]:
+        await updater.add_artifact(
+          parts=[TextPart, DataPart],
+          metadata={"stateContract": ...})
+        await updater.update_status(
+          TaskState.completed, ...)
+```
+
+  </div>
+</div>
+
+<div class="mt-2 bg-[#141414] border-l-3 border-purple-400 rounded-r-md px-5 py-2 font-mono text-xs text-gray-500">
+  Agent reasons with its own LLM · Executor translates to A2A protocol · state contract ensures stable handoff
+</div>
+
+<style>
+  h1 { color: #fff; font-size: 2rem; font-weight: 800; }
+  .slidev-layout { background: #0a0a0a; }
+  .slidev-code-wrapper { margin: 0 !important; }
+  pre.shiki { background: transparent !important; padding: 0.25rem 0 !important; font-size: 0.65rem !important; }
+</style>
+
+---
+
+# State Contract — A2A Handoff
+
+<div class="text-gray-400 text-sm font-semibold -mt-2 mb-4">How structured data flows from A2A agent back to orchestrator</div>
+
+<div class="grid grid-cols-3 gap-3">
+  <div class="bg-[#141414] border border-[#222] border-t-3 border-t-purple-400 rounded-xl p-4">
+    <div class="text-purple-400 text-xs font-extrabold tracking-widest mb-2">1 · PRODUCER</div>
+    <div class="text-gray-500 text-[10px] font-mono mb-1">agent_executor.py</div>
+
+```python
+DataPart(data={
+  "state_contract": {
+    "name": "final_reservation",
+    "version": "shopping-a2a-v1",
+    "required_fields": [
+      "final_decision", "car_model",
+      "dealer_name", "price"],
+  },
+  "final_reservation_decision": {
+    "final_decision": "reserve",
+    "car_model": "2024 Tucson",
+    "dealer_name": "Auto City",
+    "price": 32000 },
+})
+```
+
+  </div>
+  <div class="bg-[#141414] border border-[#222] border-t-3 border-t-orange-400 rounded-xl p-4">
+    <div class="text-orange-400 text-xs font-extrabold tracking-widest mb-2">2 · CONSUMER</div>
+    <div class="text-gray-500 text-[10px] font-mono mb-1">car_shopping_agent.py</div>
+
+```python
+class CarShoppingAgent(A2AAgent):
+  async def process_agent_output(
+      self, output):
+    for result in tool_results:
+      decision = result.get(
+        "final_reservation_decision")
+      # Enforce contract shape
+      if any(f not in decision
+        for f in REQUIRED_FIELDS):
+        continue
+      slot_events.append(SlotSet(
+        "car_model", decision["car_model"]))
+      slot_events.append(SlotSet(
+        "car_price", decision["price"]))
+```
+
+  </div>
+  <div class="bg-[#141414] border border-[#222] border-t-3 border-t-green-400 rounded-xl p-4">
+    <div class="text-green-400 text-xs font-extrabold tracking-widest mb-2">3 · DESIGN RULES</div>
+    <div class="space-y-2.5 text-sm">
+      <div class="flex items-start gap-3">
+        <span class="text-green-400 font-extrabold shrink-0">›</span>
+        <span class="text-gray-300">Version every contract payload</span>
+      </div>
+      <div class="flex items-start gap-3">
+        <span class="text-green-400 font-extrabold shrink-0">›</span>
+        <span class="text-gray-300">Keep required fields minimal</span>
+      </div>
+      <div class="flex items-start gap-3">
+        <span class="text-green-400 font-extrabold shrink-0">›</span>
+        <span class="text-gray-300">Validate before mutating state</span>
+      </div>
+      <div class="flex items-start gap-3">
+        <span class="text-green-400 font-extrabold shrink-0">›</span>
+        <span class="text-gray-300">Missing fields = non-fatal</span>
+      </div>
+      <div class="flex items-start gap-3">
+        <span class="text-green-400 font-extrabold shrink-0">›</span>
+        <span class="text-gray-300">Optional fields never break core</span>
+      </div>
+    </div>
+  </div>
+</div>
+
+<style>
+  h1 { color: #fff; font-size: 2rem; font-weight: 800; }
+  .slidev-layout { background: #0a0a0a; }
+  .slidev-code-wrapper { margin: 0 !important; }
+  pre.shiki { background: transparent !important; padding: 0.25rem 0 !important; font-size: 0.6rem !important; }
+</style>
+
+---
+
+# Orchestration — Rasa Flows
+
+<div class="text-gray-400 text-sm font-semibold -mt-2 mb-4">How the orchestrator routes between MCP, A2A, and native actions</div>
+
+<div class="grid grid-cols-3 gap-3">
+  <div class="bg-[#141414] border border-[#222] border-t-3 border-t-green-400 rounded-xl p-4">
+    <div class="text-green-400 text-xs font-extrabold tracking-wide mb-2">MCP FLOW</div>
+
+```yaml
+flows:
+  car_research:
+    description: Help the user
+      choose a car via web search
+    steps:
+      - call: research_new_cars
+```
+
+<div class="mt-2 text-gray-500 text-xs">
+  <span class="text-green-400 font-bold">protocol: rasa</span> → ReAct agent with <span class="font-mono">tavily_search</span> MCP server + custom <span class="font-mono">recommend_cars</span> tool
+</div>
+
+  </div>
+  <div class="bg-[#141414] border border-[#222] border-t-3 border-t-purple-400 rounded-xl p-4">
+    <div class="text-purple-400 text-xs font-extrabold tracking-wide mb-2">A2A FLOW</div>
+
+```yaml
+flows:
+  car_shopping:
+    description: Find a specific
+      car at a local dealer
+    steps:
+      - call: shopping_agent
+```
+
+<div class="mt-2 text-gray-500 text-xs">
+  <span class="text-purple-400 font-bold">protocol: a2a</span> → external Gemini agent at <span class="font-mono">:10002</span>, discovered via Agent Card
+</div>
+
+  </div>
+  <div class="bg-[#141414] border border-[#222] border-t-3 border-t-blue-400 rounded-xl p-4">
+    <div class="text-blue-400 text-xs font-extrabold tracking-wide mb-2">NATIVE FLOW</div>
+
+```yaml
+flows:
+  calculate_loan:
+    description: Check if the
+      user can afford a car
+    steps:
+      - collect: monthly_income
+      - collect: monthly_expenses
+      - action: validate_info
+      - action: calculate_afford
+```
+
+<div class="mt-2 text-gray-500 text-xs">
+  No MCP or A2A — Rasa custom actions handle business logic locally.
+</div>
+
+  </div>
+</div>
+
+<div class="mt-2 bg-[#141414] border-l-3 border-orange-400 rounded-r-md px-5 py-2 font-mono text-xs text-gray-500">
+  FlowPolicy + LLM intent → automatic routing · each flow declares its own protocol
+</div>
+
+<style>
+  h1 { color: #fff; font-size: 2rem; font-weight: 800; }
+  .slidev-layout { background: #0a0a0a; }
+  .slidev-code-wrapper { margin: 0 !important; }
+  pre.shiki { background: transparent !important; padding: 0.25rem 0 !important; font-size: 0.65rem !important; }
+</style>
+
+---
+layout: center
+class: text-center
+---
+
+<div class="text-green-400 text-xs font-extrabold tracking-widest mb-4">SECTION 5</div>
+
+# Hands-on
+
+<div class="mt-4 text-gray-500 text-lg">Run it, break it, fix it</div>
+
+<style>
+  h1 { color: #fff; font-size: 3rem; font-weight: 800; line-height: 1.2; }
+  .slidev-layout { background: #0a0a0a; }
+</style>
+
+---
+
+# Setup & Run
+
+<div class="text-gray-400 text-sm font-semibold -mt-2 mb-4">Get the workshop running in 3 steps</div>
+
+<div class="grid grid-cols-3 gap-4">
+  <div class="bg-[#141414] border border-[#222] border-t-3 border-t-blue-400 rounded-xl p-5">
+    <div class="text-blue-400 text-xs font-extrabold tracking-widest mb-3">1 · ENV</div>
+    <div class="text-gray-300 text-sm mb-3">Get the <span class="text-blue-400 font-bold">.env</span> from 1Password shared file and place it in the repo root.</div>
+    <div class="text-gray-500 text-xs font-mono bg-[#0d0d0d] rounded p-3">
+      OPENAI_API_KEY=sk-...<br/>
+      GOOGLE_API_KEY=AI...<br/>
+      TAVILY_API_KEY=tvly-...<br/>
+      MOCK_TAVILY_SEARCH=true
+    </div>
+  </div>
+  <div class="bg-[#141414] border border-[#222] border-t-3 border-t-green-400 rounded-xl p-5">
+    <div class="text-green-400 text-xs font-extrabold tracking-widest mb-3">2 · START</div>
+    <div class="text-gray-300 text-sm mb-3">Run the workshop start script — it trains the model and brings up all services.</div>
+    <div class="text-gray-500 text-xs font-mono bg-[#0d0d0d] rounded p-3">
+      ./scripts/workshop_start.sh<br/><br/>
+      # stops existing stack<br/>
+      # trains rasa model<br/>
+      # docker compose up -d --build
+    </div>
+  </div>
+  <div class="bg-[#141414] border border-[#222] border-t-3 border-t-yellow-400 rounded-xl p-5">
+    <div class="text-yellow-400 text-xs font-extrabold tracking-widest mb-3">3 · VERIFY</div>
+    <div class="text-gray-300 text-sm mb-3">Validate that all endpoints are reachable and logs are clean.</div>
+    <div class="text-gray-500 text-xs font-mono bg-[#0d0d0d] rounded p-3">
+      ./scripts/workshop_verify.sh<br/><br/>
+      # checks docker daemon<br/>
+      # checks model artifact<br/>
+      # checks localhost:5005<br/>
+      # scans logs for errors
+    </div>
+  </div>
+</div>
+
+<div class="mt-3 bg-[#141414] border-l-3 border-green-400 rounded-r-md px-5 py-2 font-mono text-xs text-gray-500">
+  Rasa runs in inspect mode (:5005) — open the browser to chat with the assistant
+</div>
+
+<style>
+  h1 { color: #fff; font-size: 2rem; font-weight: 800; }
+  .slidev-layout { background: #0a0a0a; }
+</style>
+
+---
+
+# Happy Path Demo
+
+<div class="text-gray-400 text-sm font-semibold -mt-2 mb-4">End-to-end journey — 4 prompts across all protocols</div>
+
+<div class="grid grid-cols-2 gap-4">
+  <div class="bg-[#141414] border border-[#222] rounded-xl p-5">
+    <div class="space-y-4">
+      <div class="flex gap-3 items-start">
+        <span class="bg-green-400 text-black w-6 h-6 rounded-full flex items-center justify-center text-xs font-extrabold shrink-0">1</span>
+        <div>
+          <div class="text-gray-200 text-sm font-bold">Research</div>
+          <div class="text-gray-500 text-xs italic">"I need a reliable compact SUV under $35k."</div>
+          <div class="text-green-400 text-[10px] font-extrabold mt-1">MCP → tavily_search → recommend_cars</div>
+        </div>
+      </div>
+      <div class="flex gap-3 items-start">
+        <span class="bg-purple-400 text-black w-6 h-6 rounded-full flex items-center justify-center text-xs font-extrabold shrink-0">2</span>
+        <div>
+          <div class="text-gray-200 text-sm font-bold">Shopping</div>
+          <div class="text-gray-500 text-xs italic">"Find one at a dealer near me."</div>
+          <div class="text-purple-400 text-[10px] font-extrabold mt-1">A2A → car shopping agent → finalize_purchase</div>
+        </div>
+      </div>
+      <div class="flex gap-3 items-start">
+        <span class="bg-orange-400 text-black w-6 h-6 rounded-full flex items-center justify-center text-xs font-extrabold shrink-0">3</span>
+        <div>
+          <div class="text-gray-200 text-sm font-bold">Financing</div>
+          <div class="text-gray-500 text-xs italic">"Can I afford this with a 72-month loan?"</div>
+          <div class="text-orange-400 text-[10px] font-extrabold mt-1">NATIVE → calculate_affordability action</div>
+        </div>
+      </div>
+      <div class="flex gap-3 items-start">
+        <span class="bg-blue-400 text-black w-6 h-6 rounded-full flex items-center justify-center text-xs font-extrabold shrink-0">4</span>
+        <div>
+          <div class="text-gray-200 text-sm font-bold">Booking</div>
+          <div class="text-gray-500 text-xs italic">"Book me an appointment next Tuesday afternoon."</div>
+          <div class="text-blue-400 text-[10px] font-extrabold mt-1">MCP → appointment_booking → book_appointment</div>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="flex flex-col gap-3">
+    <div class="bg-[#141414] border border-[#222] rounded-xl p-4">
+      <div class="text-yellow-400 text-xs font-extrabold tracking-widest mb-2">WHAT TO OBSERVE</div>
+      <div class="space-y-2 text-sm">
+        <div class="flex items-start gap-3">
+          <span class="text-green-400 font-extrabold shrink-0">›</span>
+          <span class="text-gray-300">Flow routing — watch which sub-agent is called</span>
+        </div>
+        <div class="flex items-start gap-3">
+          <span class="text-green-400 font-extrabold shrink-0">›</span>
+          <span class="text-gray-300">Slot handoff — car_model persists across flows</span>
+        </div>
+        <div class="flex items-start gap-3">
+          <span class="text-green-400 font-extrabold shrink-0">›</span>
+          <span class="text-gray-300">A2A streaming — "Checking availability..." status</span>
+        </div>
+        <div class="flex items-start gap-3">
+          <span class="text-green-400 font-extrabold shrink-0">›</span>
+          <span class="text-gray-300">State contract — structured data in artifacts</span>
+        </div>
+      </div>
+    </div>
+    <div class="bg-[#141414] border border-[#222] rounded-xl p-4">
+      <div class="text-orange-400 text-xs font-extrabold tracking-widest mb-2">DEBUG TIP</div>
+      <div class="text-gray-400 text-sm">Check <span class="text-orange-400 font-mono">docker compose logs -f</span> to see real-time MCP/A2A traffic between services.</div>
+    </div>
+  </div>
+</div>
+
+<style>
+  h1 { color: #fff; font-size: 2rem; font-weight: 800; }
+  .slidev-layout { background: #0a0a0a; }
+</style>
+
+---
+clicks: 5
+---
+
+# Which pattern would you use?
+
+<div class="text-gray-400 text-sm font-semibold -mt-2 mb-4">Apply the decision framework — press → to reveal answers</div>
+
+<div class="space-y-2.5">
+  <div class="bg-[#141414] border border-[#222] rounded-xl px-5 py-3">
+    <div class="flex items-start gap-3">
+      <span class="text-blue-400 font-extrabold text-lg shrink-0">1</span>
+      <div class="flex-1">
+        <div class="text-gray-200 text-sm">A customer asks "what's the weather in Berlin?" and you need to call a weather API</div>
+        <div v-if="$clicks >= 1" class="mt-2 flex items-center gap-2"><span class="text-orange-400 text-xs font-extrabold bg-orange-400/10 border border-orange-400/20 rounded px-2 py-0.5">MCP DIRECT FLOW CALL</span><span class="text-gray-500 text-sm">Single deterministic call, predictable I/O, no reasoning needed</span></div>
+      </div>
+    </div>
+  </div>
+  <div class="bg-[#141414] border border-[#222] rounded-xl px-5 py-3">
+    <div class="flex items-start gap-3">
+      <span class="text-blue-400 font-extrabold text-lg shrink-0">2</span>
+      <div class="flex-1">
+        <div class="text-gray-200 text-sm">User wants car recommendations — agent needs to search the web, analyze results, and extract structured data</div>
+        <div v-if="$clicks >= 2" class="mt-2 flex items-center gap-2"><span class="text-green-400 text-xs font-extrabold bg-green-400/10 border border-green-400/20 rounded px-2 py-0.5">MCP + REACT AGENT</span><span class="text-gray-500 text-sm">Autonomous tool selection — search first, then analyze, then extract</span></div>
+      </div>
+    </div>
+  </div>
+  <div class="bg-[#141414] border border-[#222] rounded-xl px-5 py-3">
+    <div class="flex items-start gap-3">
+      <span class="text-blue-400 font-extrabold text-lg shrink-0">3</span>
+      <div class="flex-1">
+        <div class="text-gray-200 text-sm">Partner team built a flight booking service in Java with its own LLM — you want to integrate it</div>
+        <div v-if="$clicks >= 3" class="mt-2 flex items-center gap-2"><span class="text-purple-400 text-xs font-extrabold bg-purple-400/10 border border-purple-400/20 rounded px-2 py-0.5">A2A EXTERNAL AGENT</span><span class="text-gray-500 text-sm">Different team, different stack, own lifecycle — organizational boundary</span></div>
+      </div>
+    </div>
+  </div>
+  <div class="bg-[#141414] border border-[#222] rounded-xl px-5 py-3">
+    <div class="flex items-start gap-3">
+      <span class="text-blue-400 font-extrabold text-lg shrink-0">4</span>
+      <div class="flex-1">
+        <div class="text-gray-200 text-sm">You need to save a confirmed booking to a database — slot values are already known</div>
+        <div v-if="$clicks >= 4" class="mt-2 flex items-center gap-2"><span class="text-orange-400 text-xs font-extrabold bg-orange-400/10 border border-orange-400/20 rounded px-2 py-0.5">MCP DIRECT FLOW CALL</span><span class="text-gray-500 text-sm">or even a <span class="text-blue-400">native action</span> — no LLM reasoning, just write to DB</span></div>
+      </div>
+    </div>
+  </div>
+  <div class="bg-[#141414] border border-[#222] rounded-xl px-5 py-3">
+    <div class="flex items-start gap-3">
+      <span class="text-blue-400 font-extrabold text-lg shrink-0">5</span>
+      <div class="flex-1">
+        <div class="text-gray-200 text-sm">Agent must browse multiple MCP tools to find appointment slots, compare them, and pick the best one</div>
+        <div v-if="$clicks >= 5" class="mt-2 flex items-center gap-2"><span class="text-green-400 text-xs font-extrabold bg-green-400/10 border border-green-400/20 rounded px-2 py-0.5">MCP + REACT AGENT</span><span class="text-gray-500 text-sm">Needs reasoning over multiple tools — exactly what MCPTaskAgent does in this workshop</span></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<style>
+  h1 { color: #fff; font-size: 2rem; font-weight: 800; }
+  .slidev-layout { background: #0a0a0a; }
+</style>
+
+---
+
+# Lab Exercise
+
+<div class="text-gray-400 text-sm font-semibold -mt-2 mb-4">Your turn — try the scenarios from the README</div>
+
+<div class="grid grid-cols-2 gap-4">
+  <div class="bg-[#141414] border border-[#222] border-t-3 border-t-green-400 rounded-xl p-5">
+    <div class="text-green-400 text-xs font-extrabold tracking-widest mb-3">SCENARIO 1 · HAPPY PATH</div>
+    <div class="space-y-2.5">
+      <div class="bg-[#0d0d0d] rounded-lg px-4 py-2 text-sm text-gray-300 italic">"I'm looking for a reliable used sedan under $25,000."</div>
+      <div class="bg-[#0d0d0d] rounded-lg px-4 py-2 text-sm text-gray-300 italic">"Show me options near me."</div>
+      <div class="bg-[#0d0d0d] rounded-lg px-4 py-2 text-sm text-gray-300 italic">"Can I afford this with a 72-month loan and $5,000 down?"</div>
+      <div class="bg-[#0d0d0d] rounded-lg px-4 py-2 text-sm text-gray-300 italic">"Yes, reserve it."</div>
+      <div class="bg-[#0d0d0d] rounded-lg px-4 py-2 text-sm text-gray-300 italic">"Book a test-drive appointment next Tuesday afternoon."</div>
+    </div>
+  </div>
+  <div class="flex flex-col gap-4">
+    <div class="bg-[#141414] border border-[#222] border-t-3 border-t-purple-400 rounded-xl p-5">
+      <div class="text-purple-400 text-xs font-extrabold tracking-widest mb-3">SCENARIO 2 · CROSS-AGENT HANDOFF</div>
+      <div class="space-y-2.5">
+        <div class="bg-[#0d0d0d] rounded-lg px-4 py-2 text-sm text-gray-300 italic">"I'm looking for a compact SUV under $35k. Recommend dealers nearby."</div>
+        <div class="bg-[#0d0d0d] rounded-lg px-4 py-2 text-sm text-gray-300 italic">"New. Safety and dealer distance matter most."</div>
+        <div class="bg-[#0d0d0d] rounded-lg px-4 py-2 text-sm text-gray-300 italic">"Check if I can afford it with a 72-month loan and $5k down."</div>
+        <div class="bg-[#0d0d0d] rounded-lg px-4 py-2 text-sm text-gray-300 italic">"Yes, reserve it."</div>
+      </div>
+    </div>
+    <div class="bg-[#141414] border border-[#222] rounded-xl p-4">
+      <div class="text-yellow-400 text-xs font-extrabold tracking-widest mb-2">OBSERVE</div>
+      <div class="text-gray-400 text-sm">Watch <span class="text-orange-400 font-mono">docker compose logs -f</span> — which flows fire? Do slots persist across agent handoffs? Does the state contract validate?</div>
+    </div>
   </div>
 </div>
 
