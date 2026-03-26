@@ -1386,6 +1386,54 @@ clicks: 4
 </style>
 
 ---
+
+# What We Built — Key Changes
+
+<div class="text-gray-400 text-sm font-semibold -mt-2 mb-4">Four improvements, each at the right layer</div>
+
+<div class="grid grid-cols-2 gap-3">
+
+  <div class="bg-[#141414] border border-[#222] border-t-3 border-t-green-400 rounded-xl p-4">
+    <div class="text-green-400 text-xs font-extrabold tracking-widest mb-2">1. GUIDED COMPARISON <span class="text-gray-500 font-normal normal-case tracking-normal">agent.py · mock_car_api.py</span></div>
+    <div class="space-y-1.5 text-sm">
+      <div class="flex items-start gap-2"><span class="text-green-400 shrink-0">›</span><span class="text-gray-300">New tradeoff ranking tool asks about price / features / safety / distance</span></div>
+      <div class="flex items-start gap-2"><span class="text-green-400 shrink-0">›</span><span class="text-gray-300">Returns best-fit recommendation instead of exact-match lookup</span></div>
+    </div>
+  </div>
+
+  <div class="bg-[#141414] border border-[#222] border-t-3 border-t-purple-400 rounded-xl p-4">
+    <div class="text-purple-400 text-xs font-extrabold tracking-widest mb-2">2. RIGHT ARCHITECTURE BOUNDARY <span class="text-gray-500 font-normal normal-case tracking-normal">agent_executor.py</span></div>
+    <div class="space-y-1.5 text-sm">
+      <div class="flex items-start gap-2"><span class="text-purple-400 shrink-0">›</span><span class="text-gray-300">Orchestrator still coordinates flows</span></div>
+      <div class="flex items-start gap-2"><span class="text-purple-400 shrink-0">›</span><span class="text-gray-300">Shopping-specific reasoning lives in the shopping agent where it belongs</span></div>
+    </div>
+  </div>
+
+  <div class="bg-[#141414] border border-[#222] border-t-3 border-t-orange-400 rounded-xl p-4">
+    <div class="text-orange-400 text-xs font-extrabold tracking-widest mb-2">3. CROSS-FLOW HANDOFF <span class="text-gray-500 font-normal normal-case tracking-normal">command_generator_prompt · loan yml</span></div>
+    <div class="space-y-1.5 text-sm">
+      <div class="flex items-start gap-2"><span class="text-orange-400 shrink-0">›</span><span class="text-gray-300">Finance intent overrides "continue shopping" mid-flow</span></div>
+      <div class="flex items-start gap-2"><span class="text-orange-400 shrink-0">›</span><span class="text-gray-300">Auto-resume hooks bring the user back after finance completes</span></div>
+    </div>
+  </div>
+
+  <div class="bg-[#141414] border border-[#222] border-t-3 border-t-blue-400 rounded-xl p-4">
+    <div class="text-blue-400 text-xs font-extrabold tracking-widest mb-2">4. STATE CONTINUITY <span class="text-gray-500 font-normal normal-case tracking-normal">agent_executor.py · car_shopping_agent.py</span></div>
+    <div class="space-y-1.5 text-sm">
+      <div class="flex items-start gap-2"><span class="text-blue-400 shrink-0">›</span><span class="text-gray-300">Structured shopping metadata replaces raw-text guessing</span></div>
+      <div class="flex items-start gap-2"><span class="text-blue-400 shrink-0">›</span><span class="text-gray-300"><span class="font-mono text-xs">car_model · dealer_name · car_price</span> persisted into slots before final reservation</span></div>
+      <div class="flex items-start gap-2"><span class="text-blue-400 shrink-0">›</span><span class="text-gray-300">Resumed turn injects current recommendation — no more generic "move forward?" prompt</span></div>
+    </div>
+  </div>
+
+</div>
+
+<style>
+  h1 { color: #fff; font-size: 2rem; font-weight: 800; }
+  .slidev-layout { background: #0a0a0a; }
+</style>
+
+---
 clicks: 5
 ---
 
