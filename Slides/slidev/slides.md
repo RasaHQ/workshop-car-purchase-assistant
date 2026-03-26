@@ -22,10 +22,10 @@ defaults:
     'MCP — tools as a standard',
     'Designing tools for agents',
     'A2A — agent delegation',
-    'Workshop project walkthrough',
-    'Orchestration with Rasa flows',
+    'Three Rasa patterns + code walkthrough',
+    'Workshop project architecture',
     'Hands-on demo & setup',
-    'Lab exercise & troubleshooting',
+    'Lab exercise & quiz',
   ]" class="bg-[#141414] border border-[#222] rounded-lg px-4 py-2.5 text-sm text-gray-300 flex items-center gap-3">
     <span class="text-green-400 font-extrabold shrink-0">›</span>
     <span>{{ item }}</span>
