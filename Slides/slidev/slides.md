@@ -1361,6 +1361,31 @@ class: text-center
 </style>
 
 ---
+clicks: 4
+---
+
+# Happy Path — Live
+
+<div class="text-gray-400 text-sm font-semibold -mt-2 mb-4">Click through the conversation — <span class="text-green-400">research → shopping → financing → booking</span></div>
+
+<div class="flex justify-center items-start" style="height: 50vh">
+  <transition name="fade" mode="out-in">
+    <img v-if="$clicks === 0" key="1" src="/happy-path-1.png" class="object-contain rounded-xl border border-[#222]" style="max-height: 50vh; max-width: 260px" />
+    <img v-else-if="$clicks === 1" key="2" src="/happy-path-2.png" class="object-contain rounded-xl border border-[#222]" style="max-height: 50vh; max-width: 260px" />
+    <img v-else-if="$clicks === 2" key="3" src="/happy-path-3.png" class="object-contain rounded-xl border border-[#222]" style="max-height: 50vh; max-width: 260px" />
+    <img v-else-if="$clicks === 3" key="4" src="/happy-path-4.png" class="object-contain rounded-xl border border-[#222]" style="max-height: 50vh; max-width: 260px" />
+    <img v-else key="5" src="/happy-path-5.png" class="object-contain rounded-xl border border-[#222]" style="max-height: 50vh; max-width: 260px" />
+  </transition>
+</div>
+
+<style>
+  h1 { color: #fff; font-size: 2rem; font-weight: 800; }
+  .slidev-layout { background: #0a0a0a; }
+  .fade-enter-active, .fade-leave-active { transition: opacity 0.3s ease; }
+  .fade-enter-from { opacity: 0; }
+</style>
+
+---
 clicks: 5
 ---
 
