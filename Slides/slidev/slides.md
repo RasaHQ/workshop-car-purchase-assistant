@@ -1458,3 +1458,38 @@ clicks: 5
   h1 { color: #fff; font-size: 2rem; font-weight: 800; }
   .slidev-layout { background: #0a0a0a; }
 </style>
+
+---
+layout: center
+class: text-center
+---
+
+# Wrap-up
+
+<div class="mt-6 max-w-2xl mx-auto text-left space-y-4">
+  <div class="bg-[#141414] border border-[#222] rounded-xl p-5">
+    <div class="text-yellow-400 text-xs font-extrabold tracking-widest mb-3">WHAT YOU SAW TODAY</div>
+    <div class="space-y-2 text-sm">
+      <div class="flex items-start gap-3">
+        <span class="text-green-400 font-extrabold shrink-0">›</span>
+        <span class="text-gray-300"><span class="text-white font-bold">MCP</span> standardizes how tools are exposed — build once, connect everywhere</span>
+      </div>
+      <div class="flex items-start gap-3">
+        <span class="text-purple-400 font-extrabold shrink-0">›</span>
+        <span class="text-gray-300"><span class="text-white font-bold">A2A</span> solves the organizational problem — different team, different stack, one protocol</span>
+      </div>
+      <div class="flex items-start gap-3">
+        <span class="text-orange-400 font-extrabold shrink-0">›</span>
+        <span class="text-gray-300"><span class="text-white font-bold">Three patterns in Rasa</span> — ReAct agent, direct flow call, external A2A agent</span>
+      </div>
+    </div>
+  </div>
+  <div class="bg-[#141414] border-l-3 border-green-400 rounded-r-lg px-5 py-4 text-gray-300 text-sm leading-relaxed">
+    This was a taste — more depth on tool design, agent orchestration, and production patterns coming from the AI Devs course. Questions?
+  </div>
+</div>
+
+<style>
+  h1 { color: #fff; font-size: 2.5rem; font-weight: 800; }
+  .slidev-layout { background: #0a0a0a; }
+</style>
