@@ -641,6 +641,87 @@ clicks: 6
 </style>
 
 ---
+clicks: 1
+---
+
+# Principles in Practice — Filesystem MCP
+
+<div class="text-gray-400 text-sm font-semibold -mt-2 mb-4">13 tools → 4 — applying the principles to a real MCP server</div>
+
+<div v-if="$clicks === 0" class="grid grid-cols-2 gap-4">
+  <div class="bg-[#141414] border border-[#222] border-t-3 border-t-red-400 rounded-xl p-5">
+    <div class="text-red-400 text-xs font-extrabold tracking-widest mb-3">BEFORE — 13+ INDIVIDUAL TOOLS</div>
+    <div class="grid grid-cols-2 gap-1.5">
+      <div v-for="tool in ['read_file', 'write_file', 'edit_file', 'create_directory', 'list_directory', 'directory_tree', 'move_file', 'search_files', 'get_file_info', 'read_multiple_files', 'delete_file', 'rename_file', 'copy_file']" class="bg-[#0d0d0d] rounded px-2.5 py-1.5 text-xs font-mono text-gray-500">{{ tool }}</div>
+    </div>
+    <div class="mt-4 bg-[#141414] border-l-3 border-red-400 rounded-r-lg px-4 py-3 text-gray-400 text-xs">
+      Every tool in the context window costs tokens. The model must pick from 13 nearly-identical options — confusion and wrong picks are inevitable.
+    </div>
+  </div>
+  <div class="bg-[#141414] border border-[#222] border-t-3 border-t-green-400 rounded-xl p-5">
+    <div class="text-green-400 text-xs font-extrabold tracking-widest mb-3">AFTER — 4 CATEGORIES</div>
+    <div class="space-y-3">
+      <div class="bg-[#0d0d0d] rounded-lg px-4 py-3">
+        <div class="text-green-400 font-mono text-sm font-bold">fs_search</div>
+        <div class="text-gray-500 text-xs mt-1">Files, directories, details — one tool handles all search</div>
+      </div>
+      <div class="bg-[#0d0d0d] rounded-lg px-4 py-3">
+        <div class="text-green-400 font-mono text-sm font-bold">fs_read</div>
+        <div class="text-gray-500 text-xs mt-1">Text, binary, multiple files — mode parameter picks behavior</div>
+      </div>
+      <div class="bg-[#0d0d0d] rounded-lg px-4 py-3">
+        <div class="text-green-400 font-mono text-sm font-bold">fs_write</div>
+        <div class="text-gray-500 text-xs mt-1">Create + edit — with <span class="text-yellow-400">checksum</span> verification and <span class="text-yellow-400">dryRun</span> safety</div>
+      </div>
+      <div class="bg-[#0d0d0d] rounded-lg px-4 py-3">
+        <div class="text-green-400 font-mono text-sm font-bold">fs_manage</div>
+        <div class="text-gray-500 text-xs mt-1">Move, rename, delete — delete restricted to single files + empty dirs</div>
+      </div>
+    </div>
+  </div>
+</div>
+<div v-if="$clicks >= 1">
+  <div class="bg-[#141414] border border-[#222] border-t-3 border-t-yellow-400 rounded-xl p-5 mb-3">
+    <div class="text-yellow-400 text-xs font-extrabold tracking-widest mb-3">THE SECRET SAUCE — DYNAMIC HINTS</div>
+    <div class="text-gray-300 text-sm mb-4">Designing for agents isn't just about the schema — it's about what your tools <span class="text-yellow-400 font-bold">say back</span>. Every response should help the agent decide what to do next.</div>
+    <div class="grid grid-cols-2 gap-x-6 gap-y-2">
+      <div class="flex items-start gap-3 text-sm">
+        <span class="text-yellow-400 font-extrabold shrink-0">›</span>
+        <span class="text-gray-400"><span class="text-white">Errors tell what to do</span>, not just what went wrong — "File updated. Read it again to verify."</span>
+      </div>
+      <div class="flex items-start gap-3 text-sm">
+        <span class="text-yellow-400 font-extrabold shrink-0">›</span>
+        <span class="text-gray-400"><span class="text-white">Status flags hidden constraints</span> — "Document exists but is write-protected by user settings."</span>
+      </div>
+      <div class="flex items-start gap-3 text-sm">
+        <span class="text-yellow-400 font-extrabold shrink-0">›</span>
+        <span class="text-gray-400"><span class="text-white">Next-step suggestions</span> — "Found 3 docs. Read their contents before editing."</span>
+      </div>
+      <div class="flex items-start gap-3 text-sm">
+        <span class="text-yellow-400 font-extrabold shrink-0">›</span>
+        <span class="text-gray-400"><span class="text-white">Wrong values suggest options</span> — "Invalid label. Available: 'draft', 'review', 'final'."</span>
+      </div>
+      <div class="flex items-start gap-3 text-sm">
+        <span class="text-yellow-400 font-extrabold shrink-0">›</span>
+        <span class="text-gray-400"><span class="text-white">Auto-corrections are reported</span> — "Requested lines 48–70 but file has 59. Loaded 48–59."</span>
+      </div>
+      <div class="flex items-start gap-3 text-sm">
+        <span class="text-yellow-400 font-extrabold shrink-0">›</span>
+        <span class="text-gray-400"><span class="text-white">Path resolution</span> — agent sends just "config.yml", tool resolves to full path automatically</span>
+      </div>
+    </div>
+  </div>
+  <div class="bg-[#141414] border-l-3 border-green-400 rounded-r-lg px-5 py-3 text-gray-400 text-xs">
+    Source: <a href="https://github.com/iceener/files-stdio-mcp-server" target="_blank" class="text-green-400 font-mono hover:underline">github.com/iceener/files-stdio-mcp-server</a> — a real MCP server built with these principles
+  </div>
+</div>
+
+<style>
+  h1 { color: #fff; font-size: 2rem; font-weight: 800; }
+  .slidev-layout { background: #0a0a0a; }
+</style>
+
+---
 layout: center
 class: text-center
 ---
@@ -687,6 +768,71 @@ class: text-center
 
 <div class="mt-3 bg-[#141414] border-l-3 border-purple-400 rounded-r-md px-5 py-2 font-mono text-xs text-gray-500">
   MCP = portable tools · A2A = portable agents
+</div>
+
+<style>
+  h1 { color: #fff; font-size: 2rem; font-weight: 800; }
+  .slidev-layout { background: #0a0a0a; }
+</style>
+
+---
+
+# A2A Task Lifecycle
+
+<div class="text-gray-400 text-sm font-semibold -mt-2 mb-4">State machine for agent delegation</div>
+
+<div class="flex items-center justify-center gap-3 mb-6">
+  <div v-for="[state, color, active] in [
+    ['submitted', 'border-gray-500 text-gray-400', false],
+    ['working', 'border-orange-400 text-orange-400', false],
+    ['input_required', 'border-yellow-400 text-yellow-400', false],
+    ['completed', 'border-green-400 text-green-400', false],
+    ['failed', 'border-red-400 text-red-400', false],
+  ]" class="flex items-center gap-3">
+    <div :class="color" class="border-2 rounded-lg px-4 py-2 text-xs font-extrabold tracking-wide bg-[#141414]">{{ state }}</div>
+    <span v-if="state !== 'failed'" class="text-gray-600 font-mono text-xs">→</span>
+  </div>
+</div>
+
+<div class="grid grid-cols-2 gap-4">
+  <div class="bg-[#141414] border border-[#222] rounded-xl p-5">
+    <div class="text-orange-400 text-xs font-extrabold tracking-widest mb-3">ORCHESTRATOR SENDS TASK</div>
+    <div class="space-y-2 text-sm">
+      <div class="flex items-start gap-3">
+        <span class="text-blue-400 font-extrabold shrink-0">1</span>
+        <span class="text-gray-300">Orchestrator discovers agent via <span class="text-purple-400 font-bold">Agent Card</span></span>
+      </div>
+      <div class="flex items-start gap-3">
+        <span class="text-blue-400 font-extrabold shrink-0">2</span>
+        <span class="text-gray-300">Sends user query + context as a <span class="text-purple-400 font-bold">Task</span></span>
+      </div>
+      <div class="flex items-start gap-3">
+        <span class="text-blue-400 font-extrabold shrink-0">3</span>
+        <span class="text-gray-300">Agent streams <span class="text-orange-400 font-bold">working</span> status updates</span>
+      </div>
+    </div>
+  </div>
+  <div class="bg-[#141414] border border-[#222] rounded-xl p-5">
+    <div class="text-green-400 text-xs font-extrabold tracking-widest mb-3">AGENT RETURNS RESULT</div>
+    <div class="space-y-2 text-sm">
+      <div class="flex items-start gap-3">
+        <span class="text-blue-400 font-extrabold shrink-0">4</span>
+        <span class="text-gray-300">May request more input → <span class="text-yellow-400 font-bold">input_required</span></span>
+      </div>
+      <div class="flex items-start gap-3">
+        <span class="text-blue-400 font-extrabold shrink-0">5</span>
+        <span class="text-gray-300">Returns <span class="text-green-400 font-bold">artifacts</span> with structured data</span>
+      </div>
+      <div class="flex items-start gap-3">
+        <span class="text-blue-400 font-extrabold shrink-0">6</span>
+        <span class="text-gray-300">Orchestrator maps artifacts → <span class="text-green-400 font-bold">slots</span></span>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="mt-3 bg-[#141414] border-l-3 border-green-400 rounded-r-md px-5 py-2 font-mono text-xs text-gray-500">
+  State contract versioning ensures handoff stability across deployments
 </div>
 
 <style>
@@ -997,71 +1143,6 @@ configuration:
 </style>
 
 ---
-
-# A2A Task Lifecycle
-
-<div class="text-gray-400 text-sm font-semibold -mt-2 mb-4">State machine for agent delegation</div>
-
-<div class="flex items-center justify-center gap-3 mb-6">
-  <div v-for="[state, color, active] in [
-    ['submitted', 'border-gray-500 text-gray-400', false],
-    ['working', 'border-orange-400 text-orange-400', false],
-    ['input_required', 'border-yellow-400 text-yellow-400', false],
-    ['completed', 'border-green-400 text-green-400', false],
-    ['failed', 'border-red-400 text-red-400', false],
-  ]" class="flex items-center gap-3">
-    <div :class="color" class="border-2 rounded-lg px-4 py-2 text-xs font-extrabold tracking-wide bg-[#141414]">{{ state }}</div>
-    <span v-if="state !== 'failed'" class="text-gray-600 font-mono text-xs">→</span>
-  </div>
-</div>
-
-<div class="grid grid-cols-2 gap-4">
-  <div class="bg-[#141414] border border-[#222] rounded-xl p-5">
-    <div class="text-orange-400 text-xs font-extrabold tracking-widest mb-3">ORCHESTRATOR SENDS TASK</div>
-    <div class="space-y-2 text-sm">
-      <div class="flex items-start gap-3">
-        <span class="text-blue-400 font-extrabold shrink-0">1</span>
-        <span class="text-gray-300">Orchestrator discovers agent via <span class="text-purple-400 font-bold">Agent Card</span></span>
-      </div>
-      <div class="flex items-start gap-3">
-        <span class="text-blue-400 font-extrabold shrink-0">2</span>
-        <span class="text-gray-300">Sends user query + context as a <span class="text-purple-400 font-bold">Task</span></span>
-      </div>
-      <div class="flex items-start gap-3">
-        <span class="text-blue-400 font-extrabold shrink-0">3</span>
-        <span class="text-gray-300">Agent streams <span class="text-orange-400 font-bold">working</span> status updates</span>
-      </div>
-    </div>
-  </div>
-  <div class="bg-[#141414] border border-[#222] rounded-xl p-5">
-    <div class="text-green-400 text-xs font-extrabold tracking-widest mb-3">AGENT RETURNS RESULT</div>
-    <div class="space-y-2 text-sm">
-      <div class="flex items-start gap-3">
-        <span class="text-blue-400 font-extrabold shrink-0">4</span>
-        <span class="text-gray-300">May request more input → <span class="text-yellow-400 font-bold">input_required</span></span>
-      </div>
-      <div class="flex items-start gap-3">
-        <span class="text-blue-400 font-extrabold shrink-0">5</span>
-        <span class="text-gray-300">Returns <span class="text-green-400 font-bold">artifacts</span> with structured data</span>
-      </div>
-      <div class="flex items-start gap-3">
-        <span class="text-blue-400 font-extrabold shrink-0">6</span>
-        <span class="text-gray-300">Orchestrator maps artifacts → <span class="text-green-400 font-bold">slots</span></span>
-      </div>
-    </div>
-  </div>
-</div>
-
-<div class="mt-3 bg-[#141414] border-l-3 border-green-400 rounded-r-md px-5 py-2 font-mono text-xs text-gray-500">
-  State contract versioning ensures handoff stability across deployments
-</div>
-
-<style>
-  h1 { color: #fff; font-size: 2rem; font-weight: 800; }
-  .slidev-layout { background: #0a0a0a; }
-</style>
-
----
 layout: center
 class: text-center
 ---
@@ -1134,233 +1215,6 @@ class: text-center
 <style>
   h1 { color: #fff; font-size: 2rem; font-weight: 800; }
   .slidev-layout { background: #0a0a0a; }
-</style>
-
----
-
-# A2A Server — Car Shopping Agent
-
-<div class="text-gray-400 text-sm font-semibold -mt-2 mb-4">servers/car_shopping_server/ — autonomous agent with its own LLM</div>
-
-<div class="grid grid-cols-2 gap-4">
-  <div class="bg-[#141414] border border-[#222] border-t-3 border-t-purple-400 rounded-xl p-4">
-    <div class="text-purple-400 text-xs font-extrabold tracking-wide mb-2">AGENT (Google ADK + Gemini)</div>
-
-```python
-class CarShoppingAgent:
-  def _build_agent(self) -> LlmAgent:
-    return LlmAgent(
-      model="gemini-2.5-flash",
-      name="car_shopping_agent",
-      tools=[
-        check_car_availability_tool,
-        find_similar_cars_tool,
-        get_dealer_recommendations_tool,
-        finalize_purchase_tool,
-      ],
-    )
-
-  async def stream(self, query, session_id):
-    async for event in self._runner.run_async(...):
-      if event.is_final_response():
-        yield {"is_task_complete": True, ...}
-```
-
-  </div>
-  <div class="bg-[#141414] border border-[#222] border-t-3 border-t-orange-400 rounded-xl p-4">
-    <div class="text-orange-400 text-xs font-extrabold tracking-wide mb-2">EXECUTOR (A2A protocol layer)</div>
-
-```python
-STATE_CONTRACT = "shopping-a2a-v1"
-
-class CarShoppingAgentExecutor(AgentExecutor):
-  async def execute(self, context, queue):
-    updater = TaskUpdater(queue, ...)
-    await updater.submit()
-
-    async for item in agent.stream(...):
-      if not item["is_task_complete"]:
-        await updater.update_status(
-          TaskState.working, ...)
-      elif item["finalize_tool_called"]:
-        await updater.add_artifact(
-          parts=[TextPart, DataPart],
-          metadata={"stateContract": ...})
-        await updater.update_status(
-          TaskState.completed, ...)
-```
-
-  </div>
-</div>
-
-<div class="mt-2 bg-[#141414] border-l-3 border-purple-400 rounded-r-md px-5 py-2 font-mono text-xs text-gray-500">
-  Agent reasons with its own LLM · Executor translates to A2A protocol · state contract ensures stable handoff
-</div>
-
-<style>
-  h1 { color: #fff; font-size: 2rem; font-weight: 800; }
-  .slidev-layout { background: #0a0a0a; }
-  .slidev-code-wrapper { margin: 0 !important; }
-  pre.shiki { background: transparent !important; padding: 0.25rem 0 !important; font-size: 0.65rem !important; }
-</style>
-
----
-
-# State Contract — A2A Handoff
-
-<div class="text-gray-400 text-sm font-semibold -mt-2 mb-4">How structured data flows from A2A agent back to orchestrator</div>
-
-<div class="grid grid-cols-3 gap-3">
-  <div class="bg-[#141414] border border-[#222] border-t-3 border-t-purple-400 rounded-xl p-4">
-    <div class="text-purple-400 text-xs font-extrabold tracking-widest mb-2">1 · PRODUCER</div>
-    <div class="text-gray-500 text-[10px] font-mono mb-1">agent_executor.py</div>
-
-```python
-DataPart(data={
-  "state_contract": {
-    "name": "final_reservation",
-    "version": "shopping-a2a-v1",
-    "required_fields": [
-      "final_decision", "car_model",
-      "dealer_name", "price"],
-  },
-  "final_reservation_decision": {
-    "final_decision": "reserve",
-    "car_model": "2024 Tucson",
-    "dealer_name": "Auto City",
-    "price": 32000 },
-})
-```
-
-  </div>
-  <div class="bg-[#141414] border border-[#222] border-t-3 border-t-orange-400 rounded-xl p-4">
-    <div class="text-orange-400 text-xs font-extrabold tracking-widest mb-2">2 · CONSUMER</div>
-    <div class="text-gray-500 text-[10px] font-mono mb-1">car_shopping_agent.py</div>
-
-```python
-class CarShoppingAgent(A2AAgent):
-  async def process_agent_output(
-      self, output):
-    for result in tool_results:
-      decision = result.get(
-        "final_reservation_decision")
-      # Enforce contract shape
-      if any(f not in decision
-        for f in REQUIRED_FIELDS):
-        continue
-      slot_events.append(SlotSet(
-        "car_model", decision["car_model"]))
-      slot_events.append(SlotSet(
-        "car_price", decision["price"]))
-```
-
-  </div>
-  <div class="bg-[#141414] border border-[#222] border-t-3 border-t-green-400 rounded-xl p-4">
-    <div class="text-green-400 text-xs font-extrabold tracking-widest mb-2">3 · DESIGN RULES</div>
-    <div class="space-y-2.5 text-sm">
-      <div class="flex items-start gap-3">
-        <span class="text-green-400 font-extrabold shrink-0">›</span>
-        <span class="text-gray-300">Version every contract payload</span>
-      </div>
-      <div class="flex items-start gap-3">
-        <span class="text-green-400 font-extrabold shrink-0">›</span>
-        <span class="text-gray-300">Keep required fields minimal</span>
-      </div>
-      <div class="flex items-start gap-3">
-        <span class="text-green-400 font-extrabold shrink-0">›</span>
-        <span class="text-gray-300">Validate before mutating state</span>
-      </div>
-      <div class="flex items-start gap-3">
-        <span class="text-green-400 font-extrabold shrink-0">›</span>
-        <span class="text-gray-300">Missing fields = non-fatal</span>
-      </div>
-      <div class="flex items-start gap-3">
-        <span class="text-green-400 font-extrabold shrink-0">›</span>
-        <span class="text-gray-300">Optional fields never break core</span>
-      </div>
-    </div>
-  </div>
-</div>
-
-<style>
-  h1 { color: #fff; font-size: 2rem; font-weight: 800; }
-  .slidev-layout { background: #0a0a0a; }
-  .slidev-code-wrapper { margin: 0 !important; }
-  pre.shiki { background: transparent !important; padding: 0.25rem 0 !important; font-size: 0.6rem !important; }
-</style>
-
----
-
-# Orchestration — Rasa Flows
-
-<div class="text-gray-400 text-sm font-semibold -mt-2 mb-4">How the orchestrator routes between MCP, A2A, and native actions</div>
-
-<div class="grid grid-cols-3 gap-3">
-  <div class="bg-[#141414] border border-[#222] border-t-3 border-t-green-400 rounded-xl p-4">
-    <div class="text-green-400 text-xs font-extrabold tracking-wide mb-2">MCP FLOW</div>
-
-```yaml
-flows:
-  car_research:
-    description: Help the user
-      choose a car via web search
-    steps:
-      - call: research_new_cars
-```
-
-<div class="mt-2 text-gray-500 text-xs">
-  <span class="text-green-400 font-bold">protocol: rasa</span> → ReAct agent with <span class="font-mono">tavily_search</span> MCP server + custom <span class="font-mono">recommend_cars</span> tool
-</div>
-
-  </div>
-  <div class="bg-[#141414] border border-[#222] border-t-3 border-t-purple-400 rounded-xl p-4">
-    <div class="text-purple-400 text-xs font-extrabold tracking-wide mb-2">A2A FLOW</div>
-
-```yaml
-flows:
-  car_shopping:
-    description: Find a specific
-      car at a local dealer
-    steps:
-      - call: shopping_agent
-```
-
-<div class="mt-2 text-gray-500 text-xs">
-  <span class="text-purple-400 font-bold">protocol: a2a</span> → external Gemini agent at <span class="font-mono">:10002</span>, discovered via Agent Card
-</div>
-
-  </div>
-  <div class="bg-[#141414] border border-[#222] border-t-3 border-t-blue-400 rounded-xl p-4">
-    <div class="text-blue-400 text-xs font-extrabold tracking-wide mb-2">NATIVE FLOW</div>
-
-```yaml
-flows:
-  calculate_loan:
-    description: Check if the
-      user can afford a car
-    steps:
-      - collect: monthly_income
-      - collect: monthly_expenses
-      - action: validate_info
-      - action: calculate_afford
-```
-
-<div class="mt-2 text-gray-500 text-xs">
-  No MCP or A2A — Rasa custom actions handle business logic locally.
-</div>
-
-  </div>
-</div>
-
-<div class="mt-2 bg-[#141414] border-l-3 border-orange-400 rounded-r-md px-5 py-2 font-mono text-xs text-gray-500">
-  FlowPolicy + LLM intent → automatic routing · each flow declares its own protocol
-</div>
-
-<style>
-  h1 { color: #fff; font-size: 2rem; font-weight: 800; }
-  .slidev-layout { background: #0a0a0a; }
-  .slidev-code-wrapper { margin: 0 !important; }
-  pre.shiki { background: transparent !important; padding: 0.25rem 0 !important; font-size: 0.65rem !important; }
 </style>
 
 ---
