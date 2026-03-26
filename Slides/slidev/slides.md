@@ -324,11 +324,13 @@ layout: default
     <div class="text-green-400 text-xs font-extrabold tracking-wide mb-2">NATIVE TOOLS</div>
 
 ```python
-native_tools = [{
-    "type": "function",
-    "name": "calculate",
-    "parameters": { ... }
-}]
+native_tools = [
+    Tool(
+        name="calculate",
+        description="...",
+        input_schema={...},
+    )
+]
 ```
 
   </div>
@@ -339,10 +341,9 @@ native_tools = [{
 
 ```python
 handlers = {
-    **{t.name: call_mcp(client, t)
-       for t in mcp_tools},
-    **native_handlers
-}
+    t.name: call_mcp(client, t)
+    for t in mcp_tools
+} | native_handlers
 ```
 
   </div>
@@ -369,7 +370,7 @@ async def get_weather(city: str):
 ```python
 for call in response.tool_calls:
     handler = handlers[call.name]
-    result = await handler(**call.args)
+    result = await handler(**call.input)
     # routes to MCP or native fn
 ```
 
